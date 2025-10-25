@@ -142,9 +142,13 @@ app.use((err, req, res, next) => {
   });
 });
 
-// 404 handler for API routes only
-app.use('/api/*', (req, res) => {
-  res.status(404).json({ error: 'API route not found' });
+// 404 handler - must be last
+app.use((req, res) => {
+  if (req.path.startsWith('/api/')) {
+    res.status(404).json({ error: 'API route not found' });
+  } else {
+    res.status(404).json({ error: 'Route not found' });
+  }
 });
 
 // Root endpoint for health check
