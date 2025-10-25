@@ -10,21 +10,26 @@ const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
 const DEFAULT_PROMPT = process.env.AI_PROMPT || `Write a new Naruto-themed blog post in Markdown. Provide a short descriptive title, the full content in markdown (including headings and at least one paragraph), and 3 tags. Return the output as JSON with keys: title, content, tags (array).`;
 
 async function generatePostFromAI(prompt) {
-  // If Anthropic key present, prefer Anthropic Claude API
+  // If Anthropic key present, prefer Anthropic Claude API (Messages API)
   if (ANTHROPIC_KEY) {
-    const model = process.env.ANTHROPIC_MODEL || 'claude-2.1';
     const body = {
-      model,
-      prompt: `\n\nHuman: ${prompt}\n\nAssistant:`,
-      max_tokens_to_generate: 1200,
-      temperature: 0.8
+      model: 'claude-3-sonnet-20240229',
+      max_tokens: 1200,
+      temperature: 0.8,
+      messages: [
+        {
+          role: 'user',
+          content: prompt
+        }
+      ]
     };
 
-    const res = await fetch('https://api.anthropic.com/v1/complete', {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': ANTHROPIC_KEY
+        'x-api-key': ANTHROPIC_KEY,
+        'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify(body)
     });
@@ -35,8 +40,8 @@ async function generatePostFromAI(prompt) {
     }
 
     const data = await res.json();
-    // Anthropic historically returns { completion: '...' }
-    const raw = data.completion || data.completion_text || (data.choices && data.choices[0] && data.choices[0].text) || data.output || null;
+    // New Messages API returns { content: [{ text: '...' }] }
+    const raw = data.content?.[0]?.text;
     if (!raw) throw new Error('No content from Anthropic');
 
     let jsonText = raw.trim();

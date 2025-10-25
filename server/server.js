@@ -70,19 +70,46 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Sanitize user input to prevent NoSQL injection attacks
 app.use(mongoSanitize());
 
-// Connect to MongoDB Atlas
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => {
-    console.log('Connected to MongoDB Atlas');
+// Connect to MongoDB Atlas with better error handling
+const connectDB = async () => {
+  try {
+    if (!process.env.MONGODB_URI) {
+      throw new Error('MONGODB_URI environment variable is not set');
+    }
+    
+    await mongoose.connect(process.env.MONGODB_URI, {
+      maxPoolSize: 10,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+    });
+    
+    console.log('✅ Connected to MongoDB Atlas');
+    
     // Initialize scheduler after DB connection
     try {
-      require('./scheduler');
-      console.log('AI scheduler initialized');
+      if (process.env.ENABLE_SCHEDULER !== 'false') {
+        require('./scheduler');
+        console.log('🤖 AI scheduler initialized');
+      } else {
+        console.log('📴 AI scheduler disabled');
+      }
     } catch (err) {
-      console.warn('Scheduler not started:', err.message);
+      console.warn('⚠️  Scheduler not started:', err.message);
     }
-  })
-  .catch(err => console.error('Could not connect to MongoDB Atlas:', err));
+  } catch (err) {
+    console.error('❌ MongoDB connection failed:', err.message);
+    
+    // Don't crash the app, just log the error
+    if (process.env.NODE_ENV === 'production') {
+      console.log('🔄 Retrying MongoDB connection in 5 seconds...');
+      setTimeout(connectDB, 5000);
+    } else {
+      process.exit(1);
+    }
+  }
+};
+
+connectDB();
 
 // Routes with API rate limiting
 app.use('/api/posts', apiLimiter, postsRouter);
@@ -127,8 +154,40 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 const port = process.env.PORT || 5000;
-app.listen(port, '0.0.0.0', () => {
+const server = app.listen(port, '0.0.0.0', () => {
   console.log(`🍥 Naruto Blog server running on port ${port}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🔗 Database: ${process.env.MONGODB_URI ? 'Connected' : 'Not configured'}`);
+  console.log(`🔗 Database: ${process.env.MONGODB_URI ? 'Configured' : 'Not configured'}`);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('🛑 SIGTERM received, shutting down gracefully');
+  server.close(() => {
+    console.log('✅ Process terminated');
+    mongoose.connection.close();
+  });
+});
+
+process.on('SIGINT', () => {
+  console.log('🛑 SIGINT received, shutting down gracefully');
+  server.close(() => {
+    console.log('✅ Process terminated');
+    mongoose.connection.close();
+  });
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (err) => {
+  console.error('❌ Uncaught Exception:', err.message);
+  console.error(err.stack);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (err) => {
+  console.error('❌ Unhandled Rejection:', err.message);
+  console.error(err.stack);
+  server.close(() => {
+    process.exit(1);
+  });
 });
