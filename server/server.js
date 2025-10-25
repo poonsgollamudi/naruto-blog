@@ -46,7 +46,7 @@ const corsOptions = {
       ? process.env.CORS_ORIGINS.split(',') 
       : [
           'http://localhost:5173',
-          process.env.CORS_ORIGINS
+          'https://poonsgollamudi.github.io'
         ];
     
     // Allow requests with no origin (like mobile apps or curl requests)

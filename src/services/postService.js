@@ -1,7 +1,7 @@
 // Dynamic API URL based on environment
 const API_URL = import.meta.env.VITE_API_URL || 
   (import.meta.env.PROD 
-    ? 'https://your-railway-app.up.railway.app/api'  // Will update this after Railway deployment
+    ? 'https://naruto-blog-production.up.railway.app/api'  // Your Railway backend
     : 'http://localhost:5000/api');
 
 export const postService = {
