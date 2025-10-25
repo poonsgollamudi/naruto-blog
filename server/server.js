@@ -73,6 +73,10 @@ app.use(mongoSanitize());
 // Connect to MongoDB Atlas with better error handling
 const connectDB = async () => {
   try {
+    console.log('🔍 Checking environment variables...');
+    console.log('MONGODB_URI present:', !!process.env.MONGODB_URI);
+    console.log('NODE_ENV:', process.env.NODE_ENV);
+    
     if (!process.env.MONGODB_URI) {
       throw new Error('MONGODB_URI environment variable is not set');
     }
@@ -138,20 +142,20 @@ app.use((err, req, res, next) => {
   });
 });
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({ error: 'Route not found' });
+// 404 handler for API routes only
+app.use('/api/*', (req, res) => {
+  res.status(404).json({ error: 'API route not found' });
 });
 
-// Serve static files in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../dist')));
-  
-  // Handle React routing
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../dist', 'index.html'));
+// Root endpoint for health check
+app.get('/', (req, res) => {
+  res.json({ 
+    message: '🍥 Naruto Blog API Server',
+    status: 'running',
+    version: '1.0.0',
+    endpoints: ['/api/posts', '/health']
   });
-}
+});
 
 const port = process.env.PORT || 5000;
 const server = app.listen(port, '0.0.0.0', () => {
