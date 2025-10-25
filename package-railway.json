@@ -1,0 +1,20 @@
+{
+  "name": "naruto-blog-fullstack",
+  "version": "1.0.0",
+  "description": "Full-stack Naruto blog with AI content generation",
+  "scripts": {
+    "start": "cd server && npm start",
+    "build": "npm install && cd server && npm install",
+    "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
+    "dev:client": "vite",
+    "dev:server": "cd server && npm run dev",
+    "build:client": "vite build",
+    "install:server": "cd server && npm install"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
