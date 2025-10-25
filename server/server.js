@@ -68,7 +68,8 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Sanitize user input to prevent NoSQL injection attacks
-app.use(mongoSanitize());
+// Note: Temporarily disabled due to Express 5 compatibility issues
+// app.use(mongoSanitize());
 
 // Connect to MongoDB Atlas with better error handling
 const connectDB = async () => {
