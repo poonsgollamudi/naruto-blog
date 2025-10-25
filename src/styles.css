@@ -238,7 +238,10 @@ aside {
   min-width: 0;
   flex-grow: 1;
   display: block;
-  color:#1e293b
+  color: #1e293b;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  line-height: 1.6;
 }
 
 .post-content {

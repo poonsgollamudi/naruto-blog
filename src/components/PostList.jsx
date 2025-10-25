@@ -114,7 +114,9 @@ export default function PostList({ showAddPost, setShowAddPost }) {
       {activePost && (
         <div className="post-content">
           <h1>{activePost.title}</h1>
-          <div className="content">{activePost.content}</div>
+          <div className="content" style={{ whiteSpace: 'pre-wrap' }}>
+            {activePost.content}
+          </div>
         </div>
       )}
     </div>
