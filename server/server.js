@@ -10,6 +10,9 @@ const postsRouter = require('./routes/posts');
 
 const app = express();
 
+// Trust proxy for Railway deployment
+app.set('trust proxy', 1);
+
 // Security Middleware
 app.use(helmet({
   contentSecurityPolicy: {
