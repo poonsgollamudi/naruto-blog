@@ -13,7 +13,7 @@ async function generatePostFromAI(prompt) {
   // If Anthropic key present, prefer Anthropic Claude API (Messages API)
   if (ANTHROPIC_KEY) {
     const body = {
-      model: 'claude-3-sonnet-20240229',
+      model: 'claude-sonnet-4-20250514',
       max_tokens: 1200,
       temperature: 0.8,
       messages: [
@@ -155,8 +155,8 @@ async function createPostFromPrompt(prompt) {
 
 // Only start cron if explicitly enabled
 if (process.env.ENABLE_SCHEDULER === 'true') {
-  // Cron schedule: run every Thursday at 18:00 (6pm) EST by default
-  const SCHEDULE = process.env.SCHEDULE_CRON || '0 18 * * 4';
+  // Cron schedule: run every Thursday at 18:30 (6:30pm) EST by default
+  const SCHEDULE = process.env.SCHEDULE_CRON || '30 18 * * 4';
 
   console.log(`AI scheduler will run with cron: ${SCHEDULE}`);
   cron.schedule(SCHEDULE, () => {
