@@ -155,8 +155,8 @@ async function createPostFromPrompt(prompt) {
 
 // Only start cron if explicitly enabled
 if (process.env.ENABLE_SCHEDULER === 'true') {
-  // Cron schedule: run every Sunday at 09:00 server time by default
-  const SCHEDULE = process.env.SCHEDULE_CRON || '0 9 * * 0';
+  // Cron schedule: run every Thursday at 18:00 (6pm) EST by default
+  const SCHEDULE = process.env.SCHEDULE_CRON || '0 18 * * 4';
 
   console.log(`AI scheduler will run with cron: ${SCHEDULE}`);
   cron.schedule(SCHEDULE, () => {
